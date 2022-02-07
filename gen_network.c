@@ -10,7 +10,6 @@ do_gen_network(FILE *fp)
     uplink = uplink_min + get_rand(uplink_max - uplink_min + 1);
     downlink = downlink_min + get_rand(downlink_max - downlink_min + 1);
     fprintf(fp, "%u %u\n", uplink, downlink);
-    printf("%u %u\n", uplink, downlink);
 }
 
 void

@@ -43,8 +43,8 @@ parse_gennetwork(FILE *fp)
 			fseek(fp, -1 * strlen(buf), SEEK_CUR);
 			return;
 		}
-		if (sscanf(buf, "%u %u %u %u", &uplink_min, &uplink_max,
-				&downlink_min, &downlink_max) != 4) { // jennifer
+		if (sscanf(buf, "%u %u %u %u %u", &uplink_min, &uplink_max,
+				&downlink_min, &downlink_max, &n_networks_target) != 5) { // jennifer
 			FATAL(2, "cannot load configuration: invalid gennetwork parameters: %s", trim(buf));
 		}
 	}
