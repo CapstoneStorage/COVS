@@ -7,7 +7,7 @@
 #define MAX_NETWORKS	200 // jennifer
 #define MAX_CPU_FREQS	5
 #define MAX_MEMS	5
-#define MAX_CLOUD_RATIOS	5 // jennifer
+#define MAX_OFFLOADING_RATIOS	5 // jennifer
 #define MAX_CLOUDS		5 // jennifer
 #define MAX_ATTRTYPES	5
 
@@ -21,7 +21,7 @@ typedef struct {
 	taskattrs_t	taskattrs_mem;
 	taskattrs_t taskattrs_cloud; // jennifer
 	taskattrs_t	taskattrs_cpufreq;
-	taskattrs_t	taskattrs_cloudratio; // jennifer
+	taskattrs_t	taskattrs_offloadingratio; // jennifer
 	double		util, power, score;
 	struct list_head	list_util;
 	struct list_head	list_power;
@@ -59,7 +59,7 @@ typedef struct {
 extern unsigned max_gen;
 extern unsigned	n_tasks;
 extern unsigned	n_cpufreqs;
-extern unsigned	n_cloudratios; // jennifer
+extern unsigned	n_offloadingratios; // jennifer
 extern unsigned n_clouds; // jennifer
 extern unsigned	n_pops;
 extern unsigned n_networks; // jennifer
@@ -68,7 +68,7 @@ extern struct list_head	genes_by_util;
 extern struct list_head	genes_by_power;
 extern gene_t	*genes;
 extern cpufreq_t	cpufreqs[];
-extern double	cloudratios[]; // jennifer
+extern double	offloadingratios[]; // jennifer
 extern cloud_t	clouds[]; // jennifer
 extern network_t networks[]; // jennifer
 
@@ -82,7 +82,7 @@ extern double	power_consumed_mem_idle;
 void add_mem(const char *typestr, unsigned max_capacity, double wcet_scale, double power_active, double power_idle);
 void add_cpufreq(double wcet_scale, double power_active, double power_idle);
 void add_task(unsigned wcet, unsigned period, unsigned memreq, double mem_active_ratio);
-void add_cloudratio(double r); //jennifer
+void add_offloadingratio(double r); //jennifer
 void add_cloud(const char *typestr, double wcet_scale, double power_active, double power_idle, unsigned max_capacity); // jennifer
 void add_network(unsigned uplink, unsigned downlink); // jennifer
 

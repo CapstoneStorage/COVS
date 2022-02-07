@@ -242,8 +242,8 @@ init_gene(gene_t *gene)
 
 	assign_taskattrs(&gene->taskattrs_mem, n_mems);
 	assign_taskattrs(&gene->taskattrs_cpufreq, n_cpufreqs);
-	assign_taskattrs(&gene->taskattrs_cloud, n_clouds);
-	assign_taskattrs(&gene->taskattrs_cpufreq, n_cloudratios); // jennifer
+	assign_taskattrs(&gene->taskattrs_cloud, n_clouds); // jennifer
+	assign_taskattrs(&gene->taskattrs_cpufreq, n_offloadingratios); // jennifer
 
 	for (i = 0; i < MAX_TRY; i++) {
 		INIT_LIST_HEAD(&gene->list_util);
