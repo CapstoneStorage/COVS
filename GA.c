@@ -209,7 +209,7 @@ lower_utilization(gene_t *gene)
 BOOL
 check_utilpower(gene_t *gene)
 {
-	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0;
+	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0, deadline_new = 0;
 	int	i;
 
 	for (i = 0; i < n_tasks; i++) {
@@ -218,11 +218,12 @@ check_utilpower(gene_t *gene)
 		get_task_utilpower(i, gene->taskattrs_mem.attrs[i], gene->taskattrs_cloud.attrs[i], gene->taskattrs_cpufreq.attrs[i], gene->taskattrs_cloudratio.attrs[i],
 				   &task_util, &task_power_cpu, &task_power_mem, &task_deadline); //gyuri
 		util_new += task_util;
+		deadline_new += task_deadline;
 		power_new_sum_cpu += task_power_cpu;
 		power_new_sum_mem += task_power_mem;
 	}
 	power_new = power_new_sum_cpu + power_new_sum_mem;
-	if (util_new < 1.0) {
+	if (util_new < 1.0 && deadline_new < 1.0) {
 		power_new += cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new);
 	}
 	gene->util = util_new;
