@@ -11,6 +11,8 @@ LIST_HEAD(genes_by_util);
 LIST_HEAD(genes_by_power);
 LIST_HEAD(genes_by_score);
 
+double cloudRatio[5] = {0, 0.25, 0.5, 0.75, 1.0}; // gyuri
+
 gene_t	*genes;
 
 #if 0
@@ -211,10 +213,10 @@ check_utilpower(gene_t *gene)
 	int	i;
 
 	for (i = 0; i < n_tasks; i++) {
-		double	task_util, task_power_cpu, task_power_mem;
+		double	task_util, task_power_cpu, task_power_mem, task_deadline; // gyuri
 		
 		get_task_utilpower(i, gene->taskattrs_mem.attrs[i], gene->taskattrs_cloud.attrs[i], gene->taskattrs_cpufreq.attrs[i],
-				   &task_util, &task_power_cpu, &task_power_mem);
+				   &task_util, &task_power_cpu, &task_power_mem, &task_deadline); //gyuri
 		util_new += task_util;
 		power_new_sum_cpu += task_power_cpu;
 		power_new_sum_mem += task_power_mem;
