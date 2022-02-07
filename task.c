@@ -36,7 +36,7 @@ get_task_memreq(unsigned no_task)
 }
 
 void
-add_task(unsigned wcet, unsigned period, unsigned memreq, double mem_active_ratio)
+add_task(unsigned wcet, unsigned period, unsigned memreq, double mem_active_ratio, unsigned input_size, unsigned output_size)
 {
 	task_t	*task;
 
@@ -45,6 +45,8 @@ add_task(unsigned wcet, unsigned period, unsigned memreq, double mem_active_rati
 	task->period = period;
 	task->memreq = memreq;
 	task->mem_active_ratio = mem_active_ratio;
+	task->input_size = input_size;
+	task->output_size = output_size;
 
 	n_tasks++;
 	task->no = n_tasks;

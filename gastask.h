@@ -34,6 +34,8 @@ typedef struct {
 	unsigned	period;
 	unsigned	memreq;
 	double		mem_active_ratio;
+	unsigned 	input_size;
+	unsigned	output_size;
 } task_t;
 
 typedef struct {
@@ -81,7 +83,7 @@ extern double	power_consumed_mem_idle;
 
 void add_mem(const char *typestr, unsigned max_capacity, double wcet_scale, double power_active, double power_idle);
 void add_cpufreq(double wcet_scale, double power_active, double power_idle);
-void add_task(unsigned wcet, unsigned period, unsigned memreq, double mem_active_ratio);
+void add_task(unsigned wcet, unsigned period, unsigned memreq, double mem_active_ratio, unsigned input_size, unsigned output_size);
 void add_offloadingratio(double r); //jennifer
 void add_cloud(const char *typestr, double wcet_scale, double power_active, double power_idle, unsigned max_capacity); // jennifer
 void add_network(unsigned uplink, unsigned downlink); // jennifer

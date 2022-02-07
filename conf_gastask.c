@@ -69,7 +69,7 @@ parse_task(FILE *fp)
 		if (wcet >= period) {
 			FATAL(2, "wcet is larger or equal than period: %s", trim(buf));
 		}
-		add_task(wcet, period, memreq, mem_active_ratio);
+		add_task(wcet, period, memreq, mem_active_ratio, input_size, output_size);
 	}
 }
 
