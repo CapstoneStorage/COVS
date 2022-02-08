@@ -62,7 +62,7 @@ parse_conf(FILE *fp)
 		case SECT_GENETIC:
 		case SECT_CPUFREQ:
 		case SECT_TASK:
-		case SECT_CLOUDRATIO: // jennifer
+		case SECT_OFFLOADINGRATIO: // jennifer
 		case SECT_CLOUD:	// jennifer
 		case SECT_NETWORK: // jennifer
 			skip_section(fp);

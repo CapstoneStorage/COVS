@@ -54,6 +54,7 @@ parse_task(FILE *fp)
 	while (fgets(buf, 1024, fp)) {
 		unsigned	wcet, period, memreq;
 		double		mem_active_ratio;
+		unsigned	input_size, output_size;
 
 		if (buf[0] == '#')
 			continue;
@@ -61,14 +62,14 @@ parse_task(FILE *fp)
 			fseek(fp, -1 * strlen(buf), SEEK_CUR);
 			return;
 		}
-		if (sscanf(buf, "%u %u %u %lf", &wcet, &period, &memreq, &mem_active_ratio) != 4) {
+		if (sscanf(buf, "%u %u %u %lf %u %u", &wcet, &period, &memreq, &mem_active_ratio, &input_size, &output_size) != 6) {
 			FATAL(2, "cannot load configuration: invalid task format: %s", trim(buf));
 		}
 
 		if (wcet >= period) {
 			FATAL(2, "wcet is larger or equal than period: %s", trim(buf));
 		}
-		add_task(wcet, period, memreq, mem_active_ratio);
+		add_task(wcet, period, memreq, mem_active_ratio, input_size, output_size);
 	}
 }
 
@@ -96,26 +97,23 @@ parse_network(FILE *fp)
 }
 
 // jennifer
-static void
+void
 parse_cloud(FILE *fp)
 {
 	char	buf[1024];
-
 	while (fgets(buf, 1024, fp)) {
-
-		unsigned	wcet_scale, power_active, power_idle, max_capacity;
-		char		type[1024];
-
+		double	wcet_scale, power_active, power_idle;
+		unsigned max_capacity;
+		char	type[1024];
 		if (buf[0] == '#')
 			continue;
 		if (buf[0] == '\n' || buf[0] == '*') {
 			fseek(fp, -1 * strlen(buf), SEEK_CUR);
 			return;
 		}
-		if (sscanf(buf, "%s %u %u %u %u", type, &wcet_scale, &power_active, &power_idle, &max_capacity) != 5) {
+		if (sscanf(buf, "%s %lf %lf %lf %u", type, &wcet_scale, &power_active, &power_idle, &max_capacity) != 5) {
 			FATAL(2, "cannot load configuration: invalid cloud format: %s", trim(buf));
 		}
-
 		if(max_capacity == 0){
 			FATAL(2, "invalid max memory capacity: %s", trim(buf));
 		}
@@ -132,13 +130,12 @@ parse_cloud(FILE *fp)
 
 // jennifer
 static void
-parse_cloudratio(FILE *fp)
+parse_offloadingratio(FILE *fp)
 {
 	char	buf[1024];
-
 	while (fgets(buf, 1024, fp)) {
 		double	r;
-
+		
 		if (buf[0] == '#')
 			continue;
 		if (buf[0] == '\n' || buf[0] == '*') {
@@ -148,7 +145,6 @@ parse_cloudratio(FILE *fp)
 		if (sscanf(buf, "%lf", &r) != 1) {
 			FATAL(2, "cannot load configuration: invalid ratio format: %s", trim(buf));
 		}
-
 		if (r < 0) {
 			FATAL(2, "ratio should not be a negative value: %s", trim(buf));
 		}
@@ -156,7 +152,7 @@ parse_cloudratio(FILE *fp)
 		if (r > 1) {
 			FATAL(2, "ratio is smaller or equal to one: %s", trim(buf));
 		}
-		add_cloudratio(r);
+		add_offloadingratio(r);
 	}
 }
 
@@ -188,8 +184,8 @@ parse_conf(FILE *fp)
 			}
 			parse_task(fp);
 			break;
-		case SECT_CLOUDRATIO: // jennifer
-			parse_cloudratio(fp);
+		case SECT_OFFLOADINGRATIO: // jennifer
+			parse_offloadingratio(fp);
 			break;
 		case SECT_CLOUD:	// jennifer
 			parse_cloud(fp);

@@ -32,7 +32,7 @@ typedef enum {
 	SECT_TASK,
 	SECT_GENNETWORK, // jennifer
 	SECT_CLOUD, // jennifer
-	SECT_CLOUDRATIO, // jennifer
+	SECT_OFFLOADINGRATIO, // jennifer
 	SECT_NETWORK // jennifer
 } section_t;
 

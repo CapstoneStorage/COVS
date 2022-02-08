@@ -38,8 +38,8 @@ check_section(const char *line)
 		return SECT_GENNETWORK;
 	if(strncmp(line + 1, "cloud", 5) == 0) // jennifer
 		return SECT_CLOUD;
-	if(strncmp(line + 1, "cloudratio", 10) == 0) // jennifer
-		return SECT_CLOUDRATIO;
+	if(strncmp(line + 1, "offloadingratio", 15) == 0) // jennifer
+		return SECT_OFFLOADINGRATIO;
 	if(strncmp(line + 1, "network", 7) == 0) // jennifer
 		return SECT_NETWORK;
 	return SECT_UNKNOWN;
