@@ -27,7 +27,7 @@ get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud
 	cpu_power_unit = (cpufreq->power_active * wcet_scaled_cpu + cpufreq->power_idle * wcet_scaled_mem) / (wcet_scaled_cpu + wcet_scaled_mem);
 
 	cloud_power_unit = 0;	// gyuri
-	// cloud_power_unit = task->memreq * cloud->wcet_scale + datasize_out / data_rate; // gyuri
+	// cloud_power_unit = task-> * cloud->wcet_scale + datasize_out / data_rate; // gyuri
 	*ppower_cpu = cpu_power_unit * wcet_scaled * (1 - cloudratio) / task->period + cloud_power_unit;// gyuri
 	*ppower_mem = task->memreq * (task->mem_active_ratio * mem->power_active + (1 - task->mem_active_ratio) * mem->power_idle) * wcet_scaled / task->period +
 		task->memreq * mem->power_idle * (1 - wcet_scaled / task->period);
