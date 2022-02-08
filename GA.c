@@ -11,6 +11,8 @@ LIST_HEAD(genes_by_util);
 LIST_HEAD(genes_by_power);
 LIST_HEAD(genes_by_score);
 
+// double cloudRatio[5] = {0, 0.25, 0.5, 0.75, 1.0}; // gyuri
+
 gene_t	*genes;
 
 #if 0
@@ -194,12 +196,12 @@ lower_utilization_by_attr(taskattrs_t *taskattrs)
 static void
 lower_utilization(gene_t *gene)
 {
-	if (get_rand(n_cpufreqs + n_offloadingratios) < n_cpufreqs) { // jennifer 
+	if (get_rand(n_cpufreqs + n_mems) < n_cpufreqs) {
 		if (!lower_utilization_by_attr(&gene->taskattrs_cpufreq))
-			lower_utilization_by_attr(&gene->taskattrs_offloadingratio); // jennifer
+			lower_utilization_by_attr(&gene->taskattrs_mem);
 	}
 	else {
-		if (!lower_utilization_by_attr(&gene->taskattrs_offloadingratio)) // jennifer
+		if (!lower_utilization_by_attr(&gene->taskattrs_mem))
 			lower_utilization_by_attr(&gene->taskattrs_cpufreq);
 	}
 }
@@ -207,20 +209,21 @@ lower_utilization(gene_t *gene)
 BOOL
 check_utilpower(gene_t *gene)
 {
-	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0;
+	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0, deadline_new = 0;
 	int	i;
 
 	for (i = 0; i < n_tasks; i++) {
-		double	task_util, task_power_cpu, task_power_mem;
+		double	task_util, task_power_cpu, task_power_mem, task_deadline; // gyuri
 		
-		get_task_utilpower(i, gene->taskattrs_mem.attrs[i], gene->taskattrs_cloud.attrs[i], gene->taskattrs_cpufreq.attrs[i],
-				   &task_util, &task_power_cpu, &task_power_mem);
+		get_task_utilpower(i, gene->taskattrs_mem.attrs[i], gene->taskattrs_cloud.attrs[i], gene->taskattrs_cpufreq.attrs[i], gene->taskattrs_offloadingratio.attrs[i],
+				   &task_util, &task_power_cpu, &task_power_mem, &task_deadline); //gyuri
 		util_new += task_util;
+		deadline_new += task_deadline;
 		power_new_sum_cpu += task_power_cpu;
 		power_new_sum_mem += task_power_mem;
 	}
 	power_new = power_new_sum_cpu + power_new_sum_mem;
-	if (util_new < 1.0) {
+	if (util_new < 1.0 && deadline_new < 1.0) {
 		power_new += cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new);
 	}
 	gene->util = util_new;
@@ -243,7 +246,7 @@ init_gene(gene_t *gene)
 	assign_taskattrs(&gene->taskattrs_mem, n_mems);
 	assign_taskattrs(&gene->taskattrs_cpufreq, n_cpufreqs);
 	assign_taskattrs(&gene->taskattrs_cloud, n_clouds); // jennifer
-	assign_taskattrs(&gene->taskattrs_offloadingratio, n_offloadingratios); // jennifer
+	assign_taskattrs(&gene->taskattrs_cpufreq, n_offloadingratios); // jennifer
 
 	for (i = 0; i < MAX_TRY; i++) {
 		INIT_LIST_HEAD(&gene->list_util);
@@ -289,10 +292,9 @@ inherit_values(taskattrs_t *taskattrs_newborn, taskattrs_t *taskattrs1, taskattr
 }
 
 static BOOL
-do_crossover(gene_t *newborn, gene_t *gene1, gene_t *gene2, unsigned crosspt_ratio, unsigned crosspt_cpufreq)
+do_crossover(gene_t *newborn, gene_t *gene1, gene_t *gene2, unsigned crosspt_mem, unsigned crosspt_cpufreq)
 {
-	// inherit_values(&newborn->taskattrs_mem, &gene1->taskattrs_mem, &gene2->taskattrs_mem, crosspt_mem);
-	inherit_values(&newborn->taskattrs_offloadingratio, &gene1->taskattrs_offloadingratio, &gene2->taskattrs_offloadingratio, crosspt_ratio); // jennifer
+	inherit_values(&newborn->taskattrs_mem, &gene1->taskattrs_mem, &gene2->taskattrs_mem, crosspt_mem);
 	inherit_values(&newborn->taskattrs_cpufreq, &gene1->taskattrs_cpufreq, &gene2->taskattrs_cpufreq, crosspt_cpufreq);
 
 	if (!check_memusage(newborn))
@@ -357,16 +359,16 @@ crossover(void)
 	newborn = get_newborn();
 	for (i = 0; i < MAX_TRY; i++) {
 		gene_t	*gene1, *gene2;
-		unsigned	crosspt_ratio, crosspt_cpufreq; // jennifer
+		unsigned	crosspt_mem, crosspt_cpufreq;
 	
 		gene1 = select_gene();
 		do {
 			gene2 = select_gene();
 		} while (gene1 == gene2);
 
-		crosspt_ratio = get_rand(n_tasks - 1) + 1; // jennifer
+		crosspt_mem = get_rand(n_tasks - 1) + 1;
 		crosspt_cpufreq = get_rand(n_tasks - 1) + 1;
-		if (do_crossover(newborn, gene1, gene2, crosspt_ratio, crosspt_cpufreq)) // jennifer
+		if (do_crossover(newborn, gene1, gene2, crosspt_mem, crosspt_cpufreq))
 			break;
 	}
 	if (i == MAX_TRY) {
@@ -378,10 +380,12 @@ void
 run_GA(void)
 {
 	unsigned	gen = 1;
+
 	init_report();
 	init_populations();
 
 	add_report(gen);
+
 	while (gen <= max_gen) {
 		crossover();
 		gen++;
