@@ -65,10 +65,11 @@ parse_args(int argc, char *argv[])
 int
 main(int argc, char *argv[])
 {
-	parse_args(argc, argv);
-	srand(seed);
 	
+	parse_args(argc, argv);
+	
+	srand(seed);
 	run_GA();
-
+	
 	return 0;
 }

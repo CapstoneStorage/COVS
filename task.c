@@ -4,7 +4,7 @@ unsigned	n_tasks;
 task_t	tasks[MAX_TASKS];
 
 void
-get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud_type, unsigned char cpufreq_type, unsigned char cloudratio, double *putil, double *ppower_cpu, double *ppower_mem, double *pdeadline) //gyuri
+get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud_type, unsigned char cpufreq_type, double *putil, double *ppower_cpu, double *ppower_mem)
 {
 	task_t	*task = tasks + no_task;
 	mem_t	*mem = mems + mem_type;
@@ -12,23 +12,17 @@ get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud
 	cpufreq_t	*cpufreq = cpufreqs + cpufreq_type;
 	double	wcet_scaled_cpu = 1 / cpufreq->wcet_scale;
 	double	wcet_scaled_mem = 1 / mem->wcet_scale;
-	double wcet_scaled_cloud = 1 / cloud->wcet_scale; //gyuri
 	double	cpu_power_unit;
 	double	wcet_scaled;
-	double	cloud_power_unit; //gyuri
 
 	wcet_scaled = task->wcet * wcet_scaled_cpu * wcet_scaled_mem;
 	if (wcet_scaled >= task->period) {
 		FATAL(3, "task[%u]: scaled wcet exceeds task period: %lf > %u", task->no, wcet_scaled, task->period);
 	}
-	*putil = wcet_scaled / task->period * (1 - cloudratio); // gyuri
-	*pdeadline = *putil + wcet_scaled_cloud * cloudratio * task->wcet / task->period; //gyuri
+	*putil = wcet_scaled / task->period;
 
 	cpu_power_unit = (cpufreq->power_active * wcet_scaled_cpu + cpufreq->power_idle * wcet_scaled_mem) / (wcet_scaled_cpu + wcet_scaled_mem);
-
-	cloud_power_unit = 0;	// gyuri
-	// cloud_power_unit = task-> * cloud->wcet_scale + datasize_out / data_rate; // gyuri
-	*ppower_cpu = cpu_power_unit * wcet_scaled * (1 - cloudratio) / task->period + cloud_power_unit;// gyuri
+	*ppower_cpu = cpu_power_unit * wcet_scaled / task->period;
 	*ppower_mem = task->memreq * (task->mem_active_ratio * mem->power_active + (1 - task->mem_active_ratio) * mem->power_idle) * wcet_scaled / task->period +
 		task->memreq * mem->power_idle * (1 - wcet_scaled / task->period);
 }
