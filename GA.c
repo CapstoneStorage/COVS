@@ -4,7 +4,7 @@
 
 unsigned	n_pops = 100;
 unsigned	max_gen = 100000;
-// double cloudRatio[5] = {0, 0.25, 0.5, 0.75, 1.0}; // gyuri
+// double cloudRatios[5] = {0, 0.25, 0.5, 0.75, 1.0}; // gyuri
 
 double		cutoff, penalty;
 
