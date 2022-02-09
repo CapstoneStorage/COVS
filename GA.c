@@ -125,17 +125,22 @@ sort_gene(gene_t *gene)
 static BOOL
 check_memusage(gene_t *gene)
 {
-	unsigned	mem_used[MAX_MEMS] = { 0, };
-	int	i;
+   double   mem_used[MAX_MEMS] = { 0, };
+   int   i;
+   for (i = 0; i < n_tasks; i++) {
+		// mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i);
+      mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i) * (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]); // jennifer
+	    //  printf("\n%d mem_used = %f", i, mem_used[gene->taskattrs_mem.attrs[i]]);
 
-	for (i = 0; i < n_tasks; i++) {
-		mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i);
-	}
-	for (i = 0; i < n_mems; i++) {
-		if (mem_used[i] > mems[i].max_capacity)
-			return FALSE;
-	}
-	return TRUE;
+   }
+   for (i = 0; i < n_mems; i++) {
+      if (mem_used[i] > (double) mems[i].max_capacity)
+	  {
+		//   printf("here22");
+         return FALSE;
+	  }
+   }
+   return TRUE;
 }
 
 static void
@@ -221,9 +226,14 @@ check_utilpower(gene_t *gene)
 		deadline_new += task_deadline;
 		power_new_sum_cpu += task_power_cpu;
 		power_new_sum_mem += task_power_mem;
+		
 	}
+	// printf("util_new : %f\n", util_new);
+	// printf("%f %f %f", util_new, deadline_new, power_new_sum_cpu);
 	power_new = power_new_sum_cpu + power_new_sum_mem;
-	if (util_new < 1.0  && deadline_new < 1.0) {
+	// if (deadline_new >= 1.0)
+	// 	return FALSE;
+	if (util_new < 1.0) {
 		power_new += cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new);
 	}
 	gene->util = util_new;
@@ -254,9 +264,10 @@ init_gene(gene_t *gene)
 		INIT_LIST_HEAD(&gene->list_score);
 
 		if (!check_memusage(gene)) {
-			balance_mem_types(gene);
+			// balance_mem_types(gene);
 			continue;
 		}
+		// printf("here");
 		if (check_utilpower(gene)) {
 			sort_gene(gene);
 			return;
@@ -299,11 +310,19 @@ do_crossover(gene_t *newborn, gene_t *gene1, gene_t *gene2, unsigned crosspt_rat
 	inherit_values(&newborn->taskattrs_cpufreq, &gene1->taskattrs_cpufreq, &gene2->taskattrs_cpufreq, crosspt_cpufreq);
 
 	if (!check_memusage(newborn))
+	{
+		printf("a");
 		return FALSE;
+	}
 	if (!check_utilpower(newborn))
+	{
+		printf("b");
 		return FALSE;
+	}
 	if (newborn->score > gene1->score || newborn->score > gene2->score)
+	{
 		return FALSE;
+	}
 	sort_gene(newborn);
 	return TRUE;
 }

@@ -45,6 +45,8 @@ typedef struct {
 
 extern unsigned	n_mems;
 extern mem_t	mems[];
+extern unsigned n_offloadingratios; // jennifer
+extern double   offloadingratios[]; // jennifer
 
 void errmsg(const char *fmt, ...);
 void load_conf(const char *fpath);
