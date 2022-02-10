@@ -75,13 +75,14 @@ save_task_infos(void)
 		FATAL(2, "cannot open task.txt");
 	}
 
-	fprintf(fp, "# mem_idx cpufreq_idx\n");
+	fprintf(fp, "# mem_idx cpufreq_idx cloud_idx offloadingratio_idx\n"); // jennifer
 	gene = list_entry(genes_by_power.next, gene_t, list_power);
 	if (gene->util > 2.0) { // jennifer
 		FATAL(2, "over-utilized gene: %lf", gene->util);
 	}
 	for (i = 0; i < n_tasks; i++) {
-		fprintf(fp, "%u %u\n", (unsigned)gene->taskattrs_mem.attrs[i], (unsigned)gene->taskattrs_cpufreq.attrs[i]);
+		fprintf(fp, "%u %u %u %u\n", (unsigned)gene->taskattrs_mem.attrs[i], (unsigned)gene->taskattrs_cpufreq.attrs[i],
+		(unsigned)gene->taskattrs_cloud.attrs[i], (unsigned)gene->taskattrs_offloadingratio.attrs[i]); // jennifer
 	}
 	fclose(fp);
 
