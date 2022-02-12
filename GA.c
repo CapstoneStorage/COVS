@@ -231,17 +231,17 @@ check_utilpower(gene_t *gene)
 	// printf("util_new : %f\n", util_new);
 	// printf("%f %f %f", util_new, deadline_new, power_new_sum_cpu);
 	power_new = power_new_sum_cpu + power_new_sum_mem;
-	// if (deadline_new >= 1.0)
+	// if (deadline_new >= 1.2)
 	// 	return FALSE;
-	if (util_new < 1.0) {
+	if (util_new < 1.0 && deadline_new < 1.0) {
 		power_new += cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new);
 	}
 	gene->util = util_new;
-	if (util_new <= cutoff) {
+	if (util_new <= cutoff && deadline_new <= cutoff) {
 		gene->power = power_new;
 		gene->score = power_new;
-		if (util_new >= 1.0)
-			gene->score += power_new * (util_new - 1.0) * penalty;
+		if (util_new >= 1.0 && deadline_new >= 1.0)
+			gene->score += power_new * ((util_new - 1.0) * penalty + (deadline_new - 1.0) * penalty);
 		
 		return TRUE;
 	}
