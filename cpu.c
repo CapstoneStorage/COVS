@@ -6,7 +6,6 @@ unsigned	n_cpufreqs;
 void
 add_cpufreq(double wcet_scale, double power_active, double power_idle)
 {
-	// printf("n_cpufreqs: %d\n", n_cpufreqs); // jennifer
 	if (n_cpufreqs >= MAX_CPU_FREQS)
 		FATAL(2, "too many cpu frequencies");
 
