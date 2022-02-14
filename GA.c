@@ -125,22 +125,32 @@ sort_gene(gene_t *gene)
 static BOOL
 check_memusage(gene_t *gene)
 {
-   double   mem_used[MAX_MEMS] = { 0, };
-   int   i;
-   for (i = 0; i < n_tasks; i++) {
-		// mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i);
-      mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i) * (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]); // jennifer
-	    //  printf("\n%d mem_used = %f", i, mem_used[gene->taskattrs_mem.attrs[i]]);
+	double	mem_used[MAX_MEMS] = { 0, };
+	int	i;
+	for (i = 0; i < n_tasks; i++) {
+		mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i) * (double) (1 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]); // jennifer
+		printf("Ratio: %lf\n", offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]); // delete
+		printf("%lf added: %lf \n", get_task_memreq(i) * (double) (1 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]), mem_used[0]); // delete
+	}
+	printf("n_mems: %d\n", n_mems);
+	for (i = 0; i < n_mems; i++) {
+		// printf("mem_usage: %lf max_capacity: %lf\n", mem_used[i], (double) mems[i].max_capacity); // delete
+		if (mem_used[i] > (double) mems[i].max_capacity)
+			return FALSE;
+	}
+	return TRUE;
+}
 
-   }
-   for (i = 0; i < n_mems; i++) {
-      if (mem_used[i] > (double) mems[i].max_capacity)
-	  {
-		//   printf("here22");
-         return FALSE;
-	  }
-   }
-   return TRUE;
+#if 0
+
+static void
+offload_to_cloud(gene_t *gene)
+{
+	taskattrs_t	*taskattrs = &gene->taskattrs_mem;
+	unsigned	n_tasks_type;
+
+	n_tasks_type = taskattrs->n_tasks_per_type[taskattrs->max_type];
+
 }
 
 static void
@@ -172,6 +182,8 @@ balance_mem_types(gene_t *gene)
 		
 	}
 }
+
+#endif
 
 static BOOL
 lower_utilization_by_attr(taskattrs_t *taskattrs)
@@ -226,22 +238,17 @@ check_utilpower(gene_t *gene)
 		deadline_new += task_deadline;
 		power_new_sum_cpu += task_power_cpu;
 		power_new_sum_mem += task_power_mem;
-		
 	}
-	// printf("util_new : %f\n", util_new);
-	// printf("%f %f %f", util_new, deadline_new, power_new_sum_cpu);
 	power_new = power_new_sum_cpu + power_new_sum_mem;
-	// if (deadline_new >= 1.2)
-	// 	return FALSE;
-	if (util_new < 1.0 && deadline_new < 1.0) {
+	if (util_new < 1.0  && deadline_new < 1.0) {
 		power_new += cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new);
 	}
 	gene->util = util_new;
-	if (util_new <= cutoff && deadline_new <= cutoff) {
+	if (util_new <= cutoff) {
 		gene->power = power_new;
 		gene->score = power_new;
-		if (util_new >= 1.0 && deadline_new >= 1.0)
-			gene->score += power_new * ((util_new - 1.0) * penalty + (deadline_new - 1.0) * penalty);
+		if (util_new >= 1.0)
+			gene->score += power_new * (util_new - 1.0) * penalty;
 		
 		return TRUE;
 	}
@@ -258,23 +265,25 @@ init_gene(gene_t *gene)
 	assign_taskattrs(&gene->taskattrs_cloud, n_clouds); // jennifer
 	assign_taskattrs(&gene->taskattrs_offloadingratio, n_offloadingratios); // jennifer
 
-	for (i = 0; i < MAX_TRY; i++) {
+	// for (i = 0; i < MAX_TRY; i++) {
+	for (i = 0; i < 10; i++) { // jennifer
 		INIT_LIST_HEAD(&gene->list_util);
 		INIT_LIST_HEAD(&gene->list_power);
 		INIT_LIST_HEAD(&gene->list_score);
-
+		
 		if (!check_memusage(gene)) {
-			// balance_mem_types(gene);
+			// offload_to_cloud(gene); // jennifer
+			// balance_mem_types(gene); // jennifer
 			continue;
 		}
-		// printf("here");
 		if (check_utilpower(gene)) {
 			sort_gene(gene);
 			return;
 		}
+		printf("in loop2\n"); // delete
 		lower_utilization(gene);
 	}
-
+	//printf("%d in loop3\n", i);  // delete
 	FATAL(3, "cannot generate initial genes: utilization too high: %lf", gene->util);
 }
 
@@ -311,16 +320,17 @@ do_crossover(gene_t *newborn, gene_t *gene1, gene_t *gene2, unsigned crosspt_rat
 
 	if (!check_memusage(newborn))
 	{
-		printf("a");
+		//printf("first\n"); // delete
 		return FALSE;
 	}
 	if (!check_utilpower(newborn))
 	{
-		printf("b");
+		//printf("second\n"); // delete
 		return FALSE;
 	}
 	if (newborn->score > gene1->score || newborn->score > gene2->score)
 	{
+		//printf("third\n"); // delete
 		return FALSE;
 	}
 	sort_gene(newborn);
