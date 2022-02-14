@@ -77,7 +77,7 @@ save_task_infos(void)
 
 	fprintf(fp, "# mem_idx cpufreq_idx cloud_idx offloadingratio_idx\n"); // jennifer
 	gene = list_entry(genes_by_power.next, gene_t, list_power);
-	if (gene->util > 2.0) { // jennifer
+	if (gene->util > 1.2) { // jennifer
 		FATAL(2, "over-utilized gene: %lf", gene->util);
 	}
 	for (i = 0; i < n_tasks; i++) {
