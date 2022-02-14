@@ -129,20 +129,14 @@ check_memusage(gene_t *gene)
    for (i = 0; i < n_tasks; i++) {
 		// mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i);
       mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i) * (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]); // jennifer
-	    //  printf("\n%d mem_used = %f", i, mem_used[gene->taskattrs_mem.attrs[i]]);
-
    }
    for (i = 0; i < n_mems; i++) {
       if (mem_used[i] > (double) mems[i].max_capacity)
-	  {
-		//   printf("here22");
          return FALSE;
-	  }
    }
    return TRUE;
 }
 
-// may need a function to balance local and cloud
 // may need a function to balance cloud types (if using more than one cloud)
 
 #if 0
@@ -232,8 +226,6 @@ check_utilpower(gene_t *gene)
 		power_new_sum_mem += task_power_mem;
 		
 	}
-	// printf("util_new : %f\n", util_new);
-	// printf("%f %f %f", util_new, deadline_new, power_new_sum_cpu);
 	power_new = power_new_sum_cpu + power_new_sum_mem;
 	// if (deadline_new >= 1.2)
 	// 	return FALSE;
@@ -271,7 +263,6 @@ init_gene(gene_t *gene)
 			// balance_mem_types(gene);
 			continue;
 		}
-		// printf("here");
 		if (check_utilpower(gene)) {
 			sort_gene(gene);
 			return;
