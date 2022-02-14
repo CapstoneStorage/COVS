@@ -143,6 +143,10 @@ check_memusage(gene_t *gene)
    return TRUE;
 }
 
+// may need a function to balance local and cloud
+// may need a function to balance cloud types (if using more than one cloud)
+
+#if 0
 static void
 balance_mem_types(gene_t *gene)
 {
@@ -172,6 +176,7 @@ balance_mem_types(gene_t *gene)
 		
 	}
 }
+#endif
 
 static BOOL
 lower_utilization_by_attr(taskattrs_t *taskattrs)
