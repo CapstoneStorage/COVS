@@ -4,7 +4,6 @@
 
 unsigned	n_pops = 100;
 unsigned	max_gen = 100000;
-// double cloudRatios[5] = {0, 0.25, 0.5, 0.75, 1.0}; // gyuri
 
 double		cutoff, penalty;
 
@@ -315,19 +314,11 @@ do_crossover(gene_t *newborn, gene_t *gene1, gene_t *gene2, unsigned crosspt_rat
 	inherit_values(&newborn->taskattrs_cpufreq, &gene1->taskattrs_cpufreq, &gene2->taskattrs_cpufreq, crosspt_cpufreq);
 
 	if (!check_memusage(newborn))
-	{
-		printf("a");
 		return FALSE;
-	}
 	if (!check_utilpower(newborn))
-	{
-		printf("b");
 		return FALSE;
-	}
 	if (newborn->score > gene1->score || newborn->score > gene2->score)
-	{
 		return FALSE;
-	}
 	sort_gene(newborn);
 	return TRUE;
 }
