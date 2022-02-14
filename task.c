@@ -18,16 +18,12 @@ get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud
 	double	cloud_power_unit; //gyuri
 	
 	wcet_scaled = task->wcet * wcet_scaled_cpu * wcet_scaled_mem; //gyuri rhere
-	// printf("first: %f\t", wcet_scaled);
 	wcet_scaled *= wcet_scaled_cloud;
-	// printf("second: %f\n", wcet_scaled);
-
-	if (wcet_scaled >= task->period) {
+	
+	if (wcet_scaled >= task->period)
 		FATAL(3, "task[%u]: scaled wcet exceeds task period: %lf > %u", task->no, wcet_scaled, task->period);
-	}
-	// printf("offloadingratio: %f", offloadingratios[offloadingratio]);
+	
 	*putil = wcet_scaled / task->period * (1.0 - offloadingratios[offloadingratio]); // gyuri
-	// printf("putil: %f  ", *putil);
 	*pdeadline = *putil + wcet_scaled_cloud * offloadingratios[offloadingratio] * task->wcet / task->period; //gyuri
 
 	cpu_power_unit = (cpufreq->power_active * wcet_scaled_cpu + cpufreq->power_idle * wcet_scaled_mem) / (wcet_scaled_cpu + wcet_scaled_mem);
@@ -43,7 +39,6 @@ unsigned
 get_task_memreq(unsigned no_task)
 {
 	task_t	*task = tasks + no_task;
-
 	return task->memreq;
 }
 
