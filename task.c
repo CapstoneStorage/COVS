@@ -16,20 +16,22 @@ get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud
 	double	cpu_power_unit;
 	double	wcet_scaled;
 	double	cloud_power_unit; //gyuri
-	
+	double	transtime;
+
 	wcet_scaled = task->wcet * wcet_scaled_cpu * wcet_scaled_mem; //gyuri rhere
 	wcet_scaled *= wcet_scaled_cloud;
 	
 	if (wcet_scaled >= task->period)
 		FATAL(3, "task[%u]: scaled wcet exceeds task period: %lf > %u", task->no, wcet_scaled, task->period);
 	
-	*putil = wcet_scaled / task->period * (1.0 - offloadingratios[offloadingratio]); // gyuri
+	transtime = (task->input_size/200000 + task->output_size/400000) * offloadingratios[offloadingratio];
+	*putil = (wcet_scaled  * (1.0 - offloadingratios[offloadingratio]) + transtime) / task->period; // gyuri
 	*pdeadline = *putil + wcet_scaled_cloud * offloadingratios[offloadingratio] * task->wcet / task->period; //gyuri
 
 	cpu_power_unit = (cpufreq->power_active * wcet_scaled_cpu + cpufreq->power_idle * wcet_scaled_mem) / (wcet_scaled_cpu + wcet_scaled_mem);
 	cloud_power_unit = 0;	// gyuri
-	cloud_power_unit = (task->input_size + task->output_size) / 200000; // gyuri
-	*ppower_cpu = cpu_power_unit * wcet_scaled * (1 - offloadingratios[offloadingratio]) / task->period + cloud_power_unit;// gyuri
+	cloud_power_unit = (task->input_size/200000 + task->output_size/400000); // gyuri
+	*ppower_cpu = cpu_power_unit * wcet_scaled * (1 - offloadingratios[offloadingratio]) / task->period + cloud_power_unit* wcet_scaled * (1 - offloadingratios[offloadingratio]);// gyuri
 
 	*ppower_mem = task->memreq * (task->mem_active_ratio * mem->power_active + (1 - task->mem_active_ratio) * mem->power_idle) * wcet_scaled / task->period +
 		task->memreq * mem->power_idle * (1 - wcet_scaled / task->period);
