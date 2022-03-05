@@ -16,7 +16,7 @@ get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud
 	network_t	*network = networks + no_task; // jennifer
 	double	wcet_scaled_cpu = 1 / cpufreq->wcet_scale;
 	double	wcet_scaled_mem = 1 / mem->wcet_scale;
-	double	wcet_scaled_cloud = 1 / cloud->wcet_scale;
+	double	wcet_scaled_cloud = 1 / cloud->computation_power; // jennifer
 	double	cpu_power_unit;
 	double	wcet_scaled;
 	double	cloud_power_unit; //gyuri

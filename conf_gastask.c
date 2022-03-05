@@ -102,7 +102,7 @@ parse_cloud(FILE *fp)
 {
 	char	buf[1024];
 	while (fgets(buf, 1024, fp)) {
-		double	wcet_scale, power_active, power_idle;
+		double	computation_power, power_active, power_idle; // jennifer wcet
 		unsigned max_capacity;
 		char	type[1024];
 		if (buf[0] == '#')
@@ -111,8 +111,8 @@ parse_cloud(FILE *fp)
 			fseek(fp, -1 * strlen(buf), SEEK_CUR);
 			return;
 		}
-		if (sscanf(buf, "%s %lf %lf %lf %u", type, &wcet_scale, &power_active, &power_idle, &max_capacity) != 5) {
-			FATAL(2, "cannot load configuration: invalid cloud format: %s", trim(buf));
+		if (sscanf(buf, "%s %lf %lf %lf %u", type, &computation_power, &power_active, &power_idle, &max_capacity) != 5) {
+			FATAL(2, "cannot load configuration: invalid cloud format: %s", trim(buf)); // jennifer wcet
 		}
 		if(max_capacity == 0){
 			FATAL(2, "invalid max memory capacity: %s", trim(buf));
@@ -124,7 +124,7 @@ parse_cloud(FILE *fp)
 			FATAL(2, "invalid memory power: %s", trim(buf));
 		}
 
-		add_cloud(type, wcet_scale, power_active, power_idle, max_capacity);
+		add_cloud(type, computation_power, power_active, power_idle, max_capacity); // jennifer wcet
 	}
 }
 
