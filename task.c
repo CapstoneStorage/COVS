@@ -30,7 +30,7 @@ get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud
 	
 	transtime = (task->input_size/network->uplink + task->output_size/network->downlink) * offloadingratios[offloadingratio]; // gyuri // jennifer
 	*putil = (wcet_scaled  * (1.0 - offloadingratios[offloadingratio]) + transtime) / task->period; // gyuri
-	*pdeadline = *putil + wcet_scaled_cloud * offloadingratios[offloadingratio] * task->wcet / task->period; //gyuri
+	*pdeadline = (transtime + wcet_scaled_cloud * offloadingratios[offloadingratio] * task->wcet) / task->period; //gyuri
 
 	cpu_power_unit = (cpufreq->power_active * wcet_scaled_cpu + cpufreq->power_idle * wcet_scaled_mem) / (wcet_scaled_cpu + wcet_scaled_mem);
 	cloud_power_unit = 0;	// gyuri
