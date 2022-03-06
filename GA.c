@@ -128,17 +128,12 @@ check_memusage(gene_t *gene)
    int   i;
    for (i = 0; i < n_tasks; i++) {
 		// mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i);
-		// printf("mem: %lf\n", (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]])); // jennifer delete
       mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i) * (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]); // jennifer
-	  // printf("mem: %lf, accum: %lf\n", get_task_memreq(i) * (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]), mem_used[gene->taskattrs_mem.attrs[i]]);
    }
    
    for (i = 0; i < n_mems; i++) {
       if (mem_used[i] > (double) mems[i].max_capacity)
-	  {
-		  	// printf("i: %u, mem_used: %lf, max capacity: %lf\n", i, mem_used[i], (double) mems[i].max_capacity); // delete
 			return FALSE;
-	  }  
    }
    return TRUE;
 }
