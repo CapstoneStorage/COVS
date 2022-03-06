@@ -128,11 +128,17 @@ check_memusage(gene_t *gene)
    int   i;
    for (i = 0; i < n_tasks; i++) {
 		// mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i);
+		// printf("mem: %lf\n", (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]])); // jennifer delete
       mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i) * (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]); // jennifer
+	  // printf("mem: %lf, accum: %lf\n", get_task_memreq(i) * (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]), mem_used[gene->taskattrs_mem.attrs[i]]);
    }
+   
    for (i = 0; i < n_mems; i++) {
       if (mem_used[i] > (double) mems[i].max_capacity)
-         return FALSE;
+	  {
+		  	// printf("i: %u, mem_used: %lf, max capacity: %lf\n", i, mem_used[i], (double) mems[i].max_capacity); // delete
+			return FALSE;
+	  }  
    }
    return TRUE;
 }
@@ -211,9 +217,9 @@ lower_utilization(gene_t *gene)
 BOOL
 check_utilpower(gene_t *gene)
 {
-	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0, deadline_new = 0;
+	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0;
 
-	int	i;
+	int	i, violate_period = 0; // jennifer
 
 	for (i = 0; i < n_tasks; i++) {
 		double	task_util, task_power_cpu, task_power_mem, task_deadline;
@@ -221,23 +227,21 @@ check_utilpower(gene_t *gene)
 		get_task_utilpower(i, gene->taskattrs_mem.attrs[i], gene->taskattrs_cloud.attrs[i], gene->taskattrs_cpufreq.attrs[i], gene->taskattrs_offloadingratio.attrs[i],
 				   &task_util, &task_power_cpu, &task_power_mem, &task_deadline); //gyuri
 		util_new += task_util;
-		deadline_new += task_deadline;
 		power_new_sum_cpu += task_power_cpu;
 		power_new_sum_mem += task_power_mem;
-		
+		if(task_deadline > 1.0) // jennifer
+			violate_period = 1;
 	}
 	power_new = power_new_sum_cpu + power_new_sum_mem;
-	// if (deadline_new >= 1.2)
-	// 	return FALSE;
-	if (util_new < 1.0 && deadline_new < 1.0) {
+	if (util_new < 1.0 && violate_period == 0) { // jennifer
 		power_new += cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new);
 	}
 	gene->util = util_new;
-	if (util_new <= cutoff && deadline_new <= cutoff) {
+	if (util_new <= cutoff) {
 		gene->power = power_new;
 		gene->score = power_new;
-		if (util_new >= 1.0 && deadline_new >= 1.0)
-			gene->score += power_new * ((util_new - 1.0) * penalty + (deadline_new - 1.0) * penalty);
+		if (util_new >= 1.0 || violate_period == 1) // jennifer
+			gene->score += power_new * (util_new - 1.0) * penalty;
 		
 		return TRUE;
 	}
@@ -261,6 +265,7 @@ init_gene(gene_t *gene)
 
 		if (!check_memusage(gene)) {
 			// balance_mem_types(gene);
+			// printf("%u balance number of try\n", i); // jennifer delete
 			continue;
 		}
 		if (check_utilpower(gene)) {
