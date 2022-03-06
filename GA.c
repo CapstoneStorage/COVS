@@ -133,7 +133,10 @@ check_memusage(gene_t *gene)
    
    for (i = 0; i < n_mems; i++) {
       if (mem_used[i] > (double) mems[i].max_capacity)
+	  {
+			FATAL(3, "cannot generate initial genes: memory useage too high: %lf", mem_used[i]);
 			return FALSE;
+	  }
    }
    return TRUE;
 }
@@ -270,7 +273,7 @@ init_gene(gene_t *gene)
 		lower_utilization(gene);
 	}
 
-	FATAL(3, "cannot generate initial genes: utilization too high: %lf", gene->util);
+	FATAL(3, "cannot generate initial genes: : utilization too high: %lf", gene->util);
 }
 
 static void
