@@ -263,7 +263,6 @@ init_gene(gene_t *gene)
 
 		if (!check_memusage(gene)) {
 			// balance_mem_types(gene);
-			// printf("%u balance number of try\n", i); // jennifer delete
 			continue;
 		}
 		if (check_utilpower(gene)) {
