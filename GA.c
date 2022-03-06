@@ -273,7 +273,7 @@ init_gene(gene_t *gene)
 		lower_utilization(gene);
 	}
 
-	FATAL(3, "cannot generate initial genes: : utilization too high: %lf", gene->util);
+	FATAL(3, "cannot generate initial genes: utilization too high: %lf", gene->util);
 }
 
 static void
