@@ -231,6 +231,7 @@ check_utilpower(gene_t *gene)
 			violate_period = 1;
 	}
 	power_new = power_new_sum_cpu + power_new_sum_mem;
+	// power_new = power_new_sum_cpu; // only cpu power // jennifer
 	if (util_new < 1.0 && violate_period == 0) { // jennifer
 		power_new += cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new);
 	}
