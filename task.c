@@ -28,8 +28,8 @@ get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud
 		FATAL(3, "task[%u]: scaled wcet exceeds task period: %lf > %u", task->no, wcet_scaled, task->period);
 	
 	transtime = (task->input_size/(double)network->uplink + task->output_size/(double)network->downlink); // gyuri // jennifer
-	*putil = (wcet_scaled  * (1.0 - offloadingratios[offloadingratio]) + transtime) / task->period; // gyuri
-	*pdeadline = (wcet_scaled_cloud * offloadingratios[offloadingratio] * task->wcet + transtime) / task->period; //gyuri // jennifer
+	*putil = (wcet_scaled  * (1.0 - offloadingratios[offloadingratio]) + transtime * offloadingratios[offloadingratio]) / task->period; // gyuri
+	*pdeadline = (wcet_scaled_cloud * task->wcet + transtime ) / task->period * offloadingratios[offloadingratio]; //gyuri // jennifer
 
 	cpu_power_unit = (cpufreq->power_active * wcet_scaled_cpu + cpufreq->power_idle * wcet_scaled_mem) / (wcet_scaled_cpu + wcet_scaled_mem);
 	*ppower_cpu = cpu_power_unit * (wcet_scaled / task->period) * (1 - offloadingratios[offloadingratio]) + cpu_power_unit * (transtime / task->period) * (offloadingratios[offloadingratio]);// gyuri // jennifer
