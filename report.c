@@ -86,7 +86,7 @@ save_task_infos(void)
 	}
 	fclose(fp);
 
-	printf("power: %.6lf util: %.6lf\n", gene->power, gene->util);
+	printf("power: %.6lf util: %.6lf \n", gene->power, gene->util);
 }
 
 void
