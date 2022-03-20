@@ -214,7 +214,7 @@ lower_utilization(gene_t *gene)
 BOOL
 check_utilpower(gene_t *gene)
 {
-	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0;
+	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0, power_new_idle = 0;
 
 	int	i, violate_period = 0; // jennifer
 
@@ -233,11 +233,14 @@ check_utilpower(gene_t *gene)
 	// power_new = power_new_sum_cpu + power_new_sum_mem;
 	power_new = power_new_sum_cpu; // jennifer
 	if (util_new < 1.0 && violate_period == 0) { // jennifer
-		power_new += cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new);
+		power_new_idle = cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new); // jennifer
+		power_new += power_new_idle;
+		gene->power_idle = power_new_idle; // jennifer
 	}
 	gene->util = util_new;
 	if (util_new <= cutoff) {
 		gene->power = power_new;
+		gene->power_active = power_new - gene->power_idle; // jennifer
 		gene->score = power_new;
 		if (util_new >= 1.0 || violate_period == 1) // jennifer
 			gene->score += power_new * (util_new - 1.0) * penalty;

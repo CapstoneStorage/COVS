@@ -85,8 +85,9 @@ save_task_infos(void)
 		(unsigned)gene->taskattrs_cloud.attrs[i], (unsigned)gene->taskattrs_offloadingratio.attrs[i]); // jennifer
 	}
 	fclose(fp);
-
-	printf("power: %.6lf util: %.6lf \n", gene->power, gene->util);
+	
+	printf("power: %.6lf util: %.6lf\n", gene->power, gene->util);
+	printf("active power: %.6lf idle power: %.6lf\n", gene->power_active, gene->power_idle); // jennifer
 }
 
 void
