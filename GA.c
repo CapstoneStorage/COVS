@@ -14,7 +14,6 @@ LIST_HEAD(genes_by_score);
 gene_t	*genes;
 
 #if 0
-
 static void
 show_gene(gene_t *gene)
 {
@@ -30,7 +29,6 @@ show_gene(gene_t *gene)
 	}
 	printf("\n");
 }
-
 #endif
 
 static void
@@ -121,6 +119,7 @@ sort_gene(gene_t *gene)
 	sort_gene_score(gene);
 }
 
+#if 0
 static BOOL
 check_memusage(gene_t *gene)
 {
@@ -130,7 +129,6 @@ check_memusage(gene_t *gene)
 		// mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i);
       mem_used[gene->taskattrs_mem.attrs[i]] += get_task_memreq(i) * (double) (1.0 - offloadingratios[gene->taskattrs_offloadingratio.attrs[i]]); // jennifer
    }
-   
    for (i = 0; i < n_mems; i++) {
       if (mem_used[i] > (double) mems[i].max_capacity)
 	  {
@@ -140,6 +138,7 @@ check_memusage(gene_t *gene)
    }
    return TRUE;
 }
+#endif
 
 // may need a function to balance cloud types (if using more than one cloud)
 
@@ -230,8 +229,9 @@ check_utilpower(gene_t *gene)
 		if(task_deadline > 1.0) // jennifer
 			violate_period = 1;
 	}
-	power_new = power_new_sum_cpu + power_new_sum_mem;
-	// power_new = power_new_sum_cpu; // only cpu power // jennifer
+	// printf("violate_period: %d\n", violate_period); // jennifer delete
+	// power_new = power_new_sum_cpu + power_new_sum_mem;
+	power_new = power_new_sum_cpu; // jennifer
 	if (util_new < 1.0 && violate_period == 0) { // jennifer
 		power_new += cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new);
 	}
@@ -261,11 +261,12 @@ init_gene(gene_t *gene)
 		INIT_LIST_HEAD(&gene->list_util);
 		INIT_LIST_HEAD(&gene->list_power);
 		INIT_LIST_HEAD(&gene->list_score);
-
+		/*
 		if (!check_memusage(gene)) {
 			// balance_mem_types(gene);
 			continue;
 		}
+		*/
 		if (check_utilpower(gene)) {
 			sort_gene(gene);
 			return;
@@ -306,9 +307,10 @@ do_crossover(gene_t *newborn, gene_t *gene1, gene_t *gene2, unsigned crosspt_rat
 	// inherit_values(&newborn->taskattrs_mem, &gene1->taskattrs_mem, &gene2->taskattrs_mem, crosspt_mem);
 	inherit_values(&newborn->taskattrs_offloadingratio, &gene1->taskattrs_offloadingratio, &gene2->taskattrs_offloadingratio, crosspt_ratio); // jennifer
 	inherit_values(&newborn->taskattrs_cpufreq, &gene1->taskattrs_cpufreq, &gene2->taskattrs_cpufreq, crosspt_cpufreq);
-
+	/*
 	if (!check_memusage(newborn))
 		return FALSE;
+	*/
 	if (!check_utilpower(newborn))
 		return FALSE;
 	if (newborn->score > gene1->score || newborn->score > gene2->score)
