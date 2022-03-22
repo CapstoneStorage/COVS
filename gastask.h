@@ -88,7 +88,7 @@ void add_offloadingratio(double r); //jennifer
 void add_cloud(const char *typestr, double computation_power, double power_active, double power_idle, unsigned max_capacity); // jennifer wcet
 void add_network(unsigned uplink, unsigned downlink); // jennifer
 
-void get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud_type, unsigned char cpufreq_type, unsigned char offloadingratio, double *putil, double *ppower_cpu, double *ppower_mem, double *pdeadline); //gyuri
+void get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud_type, unsigned char cpufreq_type, unsigned char *offloadingratio, double *putil, double *ppower_cpu, double *ppower_mem, double *pdeadline); //gyuri
 unsigned get_task_memreq(unsigned no_task);
 
 void init_report(void);
