@@ -7,6 +7,9 @@ unsigned	max_gen = 100000;
 
 double		cutoff, penalty;
 
+unsigned	n_clouds; // jennifer
+cloud_t  clouds[MAX_CLOUDS]; // jennifer
+
 LIST_HEAD(genes_by_util);
 LIST_HEAD(genes_by_power);
 LIST_HEAD(genes_by_score);
@@ -216,19 +219,31 @@ check_utilpower(gene_t *gene)
 {
 	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0, power_new_idle = 0;
 
-	int	i, violate_period = 0; // jennifer
+	int	i, violate_period = 0, num_offloading = 0, violate_offloading = 0; // jennifer
 
 	for (i = 0; i < n_tasks; i++) {
 		double	task_util, task_power_cpu, task_power_mem, task_deadline;
 		
-		get_task_utilpower(i, gene->taskattrs_mem.attrs[i], gene->taskattrs_cloud.attrs[i], gene->taskattrs_cpufreq.attrs[i], &gene->taskattrs_offloadingratio.attrs[i],
+		get_task_utilpower(i, gene->taskattrs_mem.attrs[i], gene->taskattrs_cloud.attrs[i], gene->taskattrs_cpufreq.attrs[i], gene->taskattrs_offloadingratio.attrs[i],
 				   &task_util, &task_power_cpu, &task_power_mem, &task_deadline); //gyuri
 		util_new += task_util;
 		power_new_sum_cpu += task_power_cpu;
 		power_new_sum_mem += task_power_mem;
 		if(task_deadline > 1.0) // jennifer
 			violate_period = 1;
+		if((unsigned)gene->taskattrs_offloadingratio.attrs[i] != 0)
+			num_offloading++;
 	}
+	for(i = 0; i < n_clouds; i++) // jennifer
+		{
+			if((double)num_offloading > clouds[i].offloading_limit * n_tasks)
+			{
+				violate_offloading = 1;
+				//printf("VIOLATE\n");
+				break;
+			}
+		}
+	// printf("set to: %lf real: %lf violate: %u\n", clouds[i].offloading_limit * n_tasks, (double)num_offloading, violate_offloading);
 	// printf("violate_period: %d\n", violate_period); // jennifer delete
 	// power_new = power_new_sum_cpu + power_new_sum_mem;
 	power_new = power_new_sum_cpu; // jennifer
@@ -244,7 +259,8 @@ check_utilpower(gene_t *gene)
 		gene->score = power_new;
 		if (util_new >= 1.0 || violate_period == 1) // jennifer
 			gene->score += power_new * (util_new - 1.0) * penalty;
-		
+		if(violate_offloading == 1) // jennifer
+			gene->score += power_new * (util_new - 1.0) * penalty * 10;
 		return TRUE;
 	}
 	return FALSE;
