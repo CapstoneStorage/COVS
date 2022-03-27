@@ -67,7 +67,7 @@ main(int argc, char *argv[])
 {
 	
 	parse_args(argc, argv);
-	
+
 	srand(seed);
 	run_GA();
 	

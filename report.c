@@ -68,7 +68,7 @@ static void
 save_task_infos(void)
 {
 	gene_t	*gene;
-	int	i;
+	int	i, n_offloading = 0;
 
 	fp = fopen("task.txt", "w");
 	if (fp == NULL){
@@ -83,11 +83,14 @@ save_task_infos(void)
 	for (i = 0; i < n_tasks; i++) {
 		fprintf(fp, "%u %u %u %u\n", (unsigned)gene->taskattrs_mem.attrs[i], (unsigned)gene->taskattrs_cpufreq.attrs[i],
 		(unsigned)gene->taskattrs_cloud.attrs[i], (unsigned)gene->taskattrs_offloadingratio.attrs[i]); // jennifer
+		if((unsigned)gene->taskattrs_offloadingratio.attrs[i] != 0)
+			n_offloading++;
 	}
 	fclose(fp);
 	
 	printf("power: %.6lf util: %.6lf\n", gene->power, gene->util);
 	printf("active power: %.6lf idle power: %.6lf\n", gene->power_active, gene->power_idle); // jennifer
+	printf("offloading ratio: %.6lf\n", n_offloading/(double)n_tasks); // jennifer
 }
 
 void

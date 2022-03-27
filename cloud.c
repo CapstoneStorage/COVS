@@ -5,7 +5,7 @@ unsigned	n_clouds;
 
 
 void
-add_cloud(const char *typestr, double computation_power, double power_active, double power_idle, unsigned max_capacity)
+add_cloud(const char *typestr, double computation_power, double power_active, double power_idle, unsigned max_capacity, double offloading_limit)
 {
     cloud_t *cloud;
 
@@ -18,5 +18,6 @@ add_cloud(const char *typestr, double computation_power, double power_active, do
     cloud->power_active = power_active;
     cloud->power_idle = power_idle;
     cloud->max_capacity = max_capacity;
+    cloud->offloading_limit = offloading_limit;
 	n_clouds++;
 }
