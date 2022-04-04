@@ -7,6 +7,7 @@
 #define MAX_NETWORKS	200 // jennifer
 #define MAX_CPU_FREQS	5
 #define MAX_MEMS	5
+#define MAX_NETCOMMANDERS 200 // jennifer
 #define MAX_OFFLOADING_RATIOS	5 // jennifer
 #define MAX_CLOUDS		5 // jennifer
 #define MAX_ATTRTYPES	5
@@ -22,7 +23,8 @@ typedef struct {
 	taskattrs_t taskattrs_cloud; // jennifer
 	taskattrs_t	taskattrs_cpufreq;
 	taskattrs_t	taskattrs_offloadingratio; // jennifer
-	double		util, power, score, power_idle, power_active; // jennifer
+	double		util, power, score, power_idle, power_active, power_netcom; // jennifer
+	unsigned 	period_violation; // jennifer
 	struct list_head	list_util;
 	struct list_head	list_power;
 	struct list_head	list_score;
@@ -59,6 +61,13 @@ typedef struct {
 	unsigned	no;
 } network_t;
 
+// jennifer
+typedef struct {
+	unsigned	intercept_out;
+	unsigned	intercept_in;
+	unsigned    no;
+} net_commander_t;
+
 extern unsigned max_gen;
 extern unsigned	n_tasks;
 extern unsigned	n_cpufreqs;
@@ -66,6 +75,7 @@ extern unsigned	n_offloadingratios; // jennifer
 extern unsigned n_clouds; // jennifer
 extern unsigned	n_pops;
 extern unsigned n_networks; // jennifer
+extern unsigned n_net_commanders; // jennifer
 
 extern struct list_head	genes_by_util;
 extern struct list_head	genes_by_power;
@@ -74,6 +84,7 @@ extern cpufreq_t	cpufreqs[];
 extern double	offloadingratios[]; // jennifer
 extern cloud_t	clouds[]; // jennifer
 extern network_t networks[]; // jennifer
+extern net_commander_t net_commands[]; // jennifer
 
 extern double	cutoff, penalty;
 
@@ -88,8 +99,9 @@ void add_task(unsigned wcet, unsigned period, unsigned memreq, double mem_active
 void add_offloadingratio(double r); //jennifer
 void add_cloud(const char *typestr, double computation_power, double power_active, double power_idle, unsigned max_capacity, double offloading_limit); // jennifer wcet
 void add_network(unsigned uplink, unsigned downlink); // jennifer
+void add_net_commander(unsigned intercept_out, unsigned intercept_in); // jennifer
 
-void get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud_type, unsigned char cpufreq_type, unsigned char *offloadingratio, double *putil, double *ppower_cpu, double *ppower_mem, double *pdeadline); //gyuri
+void get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud_type, unsigned char cpufreq_type, unsigned char offloadingratio, double *putil, double *ppower_cpu, double *ppower_mem, double *ppower_net_com, double *pdeadline); //gyuri
 unsigned get_task_memreq(unsigned no_task);
 
 void init_report(void);

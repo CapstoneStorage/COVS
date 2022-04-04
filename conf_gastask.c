@@ -89,10 +89,33 @@ parse_network(FILE *fp)
 			return;
 		}
 		if (sscanf(buf, "%u %u", &uplink, &downlink) != 2) {
-			FATAL(2, "cannot load configuration: invalid task format: %s", trim(buf));
+			FATAL(2, "cannot load configuration: invalid network format: %s", trim(buf));
 		}
 
 		add_network(uplink, downlink);
+	}
+}
+
+// jennifer
+static void
+parse_net_commander(FILE *fp)
+{
+	char	buf[1024];
+
+	while (fgets(buf, 1024, fp)) {
+		unsigned	intercept_out, intercept_in;
+
+		if (buf[0] == '#')
+			continue;
+		if (buf[0] == '\n' || buf[0] == '*') {
+			fseek(fp, -1 * strlen(buf), SEEK_CUR);
+			return;
+		}
+		if (sscanf(buf, "%u %u", &intercept_out, &intercept_in) != 2) {
+			FATAL(2, "cannot load configuration: invalid network commander format: %s", trim(buf));
+		}
+
+		add_net_commander(intercept_out, intercept_in);
 	}
 }
 
@@ -172,6 +195,7 @@ parse_conf(FILE *fp)
 			break;
 		case SECT_GENTASK:
 		case SECT_GENNETWORK: // jennifer
+		case SECT_GENNETCOMMANDER: // jennifer
 			skip_section(fp);
 			break;
 		case SECT_CPUFREQ:
@@ -194,6 +218,9 @@ parse_conf(FILE *fp)
 			break;
 		case SECT_NETWORK: // jennifer
 			parse_network(fp);
+			break;
+		case SECT_NET_COMMANDER: // jennifer
+			parse_net_commander(fp);
 			break;
 		default:
 			errmsg("unknown section: %s", trim(buf));
