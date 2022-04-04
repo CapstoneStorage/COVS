@@ -68,7 +68,7 @@ static void
 save_task_infos(void)
 {
 	gene_t	*gene;
-	int	i, n_offloading = 0;
+	int	i, n_offloading = 0, cpufreq0 = 0, cpufreq1 = 0, cpufreq2 = 0, cpufreq3 = 0; // jennifer
 
 	fp = fopen("task.txt", "w");
 	if (fp == NULL){
@@ -85,12 +85,24 @@ save_task_infos(void)
 		(unsigned)gene->taskattrs_cloud.attrs[i], (unsigned)gene->taskattrs_offloadingratio.attrs[i]); // jennifer
 		if((unsigned)gene->taskattrs_offloadingratio.attrs[i] != 0)
 			n_offloading++;
+		if((unsigned)gene->taskattrs_cpufreq.attrs[i] == 0) // jennifer
+			cpufreq0++;
+		else if ((unsigned)gene->taskattrs_cpufreq.attrs[i] == 1)
+			cpufreq1++;
+		else if ((unsigned)gene->taskattrs_cpufreq.attrs[i] == 2)
+			cpufreq2++;
+		else
+			cpufreq3++;
 	}
 	fclose(fp);
 	
 	printf("power: %.6lf util: %.6lf\n", gene->power, gene->util);
-	printf("active power: %.6lf idle power: %.6lf\n", gene->power_active, gene->power_idle); // jennifer
+	// printf("active power: %.6lf idle power: %.6lf\n", gene->power_active, gene->power_idle); // jennifer
+	printf("active power: %.6lf network power: %.6lf\n", gene->power_active, gene->power_netcom); // jennifer
 	printf("offloading ratio: %.6lf\n", n_offloading/(double)n_tasks); // jennifer
+	printf("cpu frequency: 1  0.5  0.25  0.125 \n"); // jennifer
+	printf("\t      %d,  %d,  %d,  %d \n", cpufreq0, cpufreq1, cpufreq2, cpufreq3); // jennifer
+	printf("period violation: %u\n", gene->period_violation); // jennifer
 }
 
 void

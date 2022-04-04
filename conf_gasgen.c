@@ -7,6 +7,8 @@ extern unsigned	input_size_min, input_size_max; // jennifer
 extern unsigned	output_size_min, output_size_max; // jennifer
 extern unsigned n_networks_target; // jennifer
 extern unsigned uplink_min, uplink_max, downlink_min, downlink_max; // jennifer
+extern unsigned n_net_commander_target; // jennifer
+extern unsigned intercept_out_min, intercept_out_max, intercept_in_min, intercept_in_max; // jennifer
 
 static void
 parse_gentask(FILE *fp)
@@ -50,6 +52,25 @@ parse_gennetwork(FILE *fp)
 	}
 }
 
+static void
+parse_gennetcommander(FILE *fp)
+{
+	char	buf[1024];
+
+	while (fgets(buf, 1024, fp)) {
+		if (buf[0] == '#')
+			continue;
+		if (buf[0] == '\n' || buf[0] == '*') {
+			fseek(fp, -1 * strlen(buf), SEEK_CUR);
+			return;
+		}
+		if (sscanf(buf, "%u %u %u %u %u", &intercept_out_min, &intercept_out_max,
+				&intercept_in_min, &intercept_in_max, &n_net_commander_target) != 5) { // jennifer
+			FATAL(2, "cannot load configuration: invalid gencommander parameters: %s", trim(buf));
+		}
+	}
+}
+
 void
 parse_conf(FILE *fp)
 {
@@ -65,6 +86,7 @@ parse_conf(FILE *fp)
 		case SECT_OFFLOADINGRATIO: // jennifer
 		case SECT_CLOUD:	// jennifer
 		case SECT_NETWORK: // jennifer
+		case SECT_NET_COMMANDER: // jennifer
 			skip_section(fp);
 			break;
 		case SECT_MEM:
@@ -75,6 +97,9 @@ parse_conf(FILE *fp)
 			break;
 		case SECT_GENNETWORK: // jennifer
 			parse_gennetwork(fp);
+			break;
+		case SECT_GENNETCOMMANDER: // jennifer
+			parse_gennetcommander(fp);
 			break;
 		default:
 			errmsg("unknown section: %s", trim(buf));
