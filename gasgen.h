@@ -7,6 +7,5 @@
 
 void gen_task(void);
 void gen_network(void);
-void gen_net_commander(void);
 
 #endif

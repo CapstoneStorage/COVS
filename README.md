@@ -21,10 +21,9 @@ Just make to build gastask
 ```
 # ./gasgen gastask.conf
 ```
-- Tasks list will be generated into <code>task_generated.txt</code> <code>network_generated.txt</code> <code>network_commander_generated.txt</code>according to gastask.conf
+- Tasks list will be generated into <code>task_generated.txt</code> <code>network_generated.txt</code> according to gastask.conf
 - paste <code>task_generated.txt</code> into the task section of gastask.conf 
 - paste <code>network_generated.txt</code> into the network section of gastask.conf
-- paste <code>network_commander_generated.txt</code> into the net_commander_ section of gastask.conf
 - run gastask
 ```
 # ./gastask gastask.conf
