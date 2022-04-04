@@ -217,26 +217,23 @@ lower_utilization(gene_t *gene)
 BOOL
 check_utilpower(gene_t *gene)
 {
-	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0, power_new_idle = 0, power_new_sum_net_com = 0;
+	double	util_new = 0, power_new, power_new_sum_cpu = 0, power_new_sum_mem = 0, power_new_idle = 0;
 
-	int	i, violate_period = 0, num_offloading = 0; // jennifer
-	// int violate_offloading = 0; // jennifer
+	int	i, violate_period = 0, num_offloading = 0, violate_offloading = 0; // jennifer
 
 	for (i = 0; i < n_tasks; i++) {
-		double	task_util, task_power_cpu, task_power_mem, task_power_net_com, task_deadline;
+		double	task_util, task_power_cpu, task_power_mem, task_deadline;
 		
-		get_task_utilpower(i, gene->taskattrs_mem.attrs[i], gene->taskattrs_cloud.attrs[i], gene->taskattrs_cpufreq.attrs[i], gene->taskattrs_offloadingratio.attrs[i],
-				   &task_util, &task_power_cpu, &task_power_mem, &task_power_net_com, &task_deadline); //gyuri
+		get_task_utilpower(i, gene->taskattrs_mem.attrs[i], gene->taskattrs_cloud.attrs[i], gene->taskattrs_cpufreq.attrs[i], &gene->taskattrs_offloadingratio.attrs[i],
+				   &task_util, &task_power_cpu, &task_power_mem, &task_deadline); //gyuri
 		util_new += task_util;
 		power_new_sum_cpu += task_power_cpu;
 		power_new_sum_mem += task_power_mem;
-		power_new_sum_net_com += task_power_net_com;
 		if(task_deadline > 1.0) // jennifer
-			violate_period ++;
+			violate_period = 1;
 		if((unsigned)gene->taskattrs_offloadingratio.attrs[i] != 0)
 			num_offloading++;
 	}
-	/*
 	for(i = 0; i < n_clouds; i++) // jennifer
 		{
 			if((double)num_offloading > clouds[i].offloading_limit * n_tasks)
@@ -244,12 +241,9 @@ check_utilpower(gene_t *gene)
 				violate_offloading = 1;
 				break;
 			}
-	}
-	*/
+		}
 	// power_new = power_new_sum_cpu + power_new_sum_mem;
-	power_new = power_new_sum_cpu + power_new_sum_net_com; // jennifer
-	gene->period_violation = violate_period;
-	// idle power set to zero
+	power_new = power_new_sum_cpu; // jennifer
 	if (util_new < 1.0 && violate_period == 0) { // jennifer
 		power_new_idle = cpufreqs[n_cpufreqs - 1].power_idle * (1 - util_new); // jennifer
 		power_new += power_new_idle;
@@ -258,13 +252,12 @@ check_utilpower(gene_t *gene)
 	gene->util = util_new;
 	if (util_new <= cutoff) {
 		gene->power = power_new;
-		gene->power_active = power_new - gene->power_idle - power_new_sum_net_com; // jennifer
-		gene->power_netcom = power_new_sum_net_com; // jennifer
+		gene->power_active = power_new - gene->power_idle; // jennifer
 		gene->score = power_new;
-		if (util_new >= 1.0 || violate_period > 0) // jennifer
+		if (util_new >= 1.0 || violate_period == 1) // jennifer
 			gene->score += power_new * (util_new - 1.0) * penalty;
-		 //if(violate_offloading == 1) // jennifer
-			//gene->score += power_new * (util_new - 1.0) * penalty * 10;
+		if(violate_offloading == 1) // jennifer
+			gene->score += power_new * (util_new - 1.0) * penalty * 10;
 		return TRUE;
 	}
 	return FALSE;

@@ -60,7 +60,6 @@ main(int argc, char *argv[])
 
 	gen_task();
 	gen_network(); // jennifer
-	gen_net_commander(); // jennifer
 
 	return 0;
 }

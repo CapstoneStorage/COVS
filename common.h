@@ -31,11 +31,9 @@ typedef enum {
 	SECT_MEM,
 	SECT_TASK,
 	SECT_GENNETWORK, // jennifer
-	SECT_GENNETCOMMANDER, // jennifer
 	SECT_CLOUD, // jennifer
 	SECT_OFFLOADINGRATIO, // jennifer
-	SECT_NETWORK, // jennifer
-	SECT_NET_COMMANDER // jennifer 	
+	SECT_NETWORK // jennifer
 } section_t;
 
 typedef struct {
