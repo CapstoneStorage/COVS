@@ -35,9 +35,9 @@ get_task_utilpower(unsigned no_task, unsigned char mem_type, unsigned char cloud
 	transtime = task->input_size/(double)network->uplink + task->output_size/(double)network->downlink; // gyuri // jennifer
 	netcomtime = net_commander->intercept_out + net_commander->intercept_in;
 	*putil = (wcet_scaled  * (1.0 - offloadingratios[offloadingratio]) + (wcet_scaled_cpu * netcomtime) * offloadingratios[offloadingratio]) / task->period; // gyuri
-	*pdeadline = (wcet_scaled_cloud * task->wcet + wcet_scaled_cpu * netcomtime + transtime) / task->period * offloadingratios[offloadingratio]; //gyuri // jennifer
+	*pdeadline = (wcet_scaled_cloud * task->wcet + wcet_scaled_cpu * netcomtime + transtime) / (task->period) * offloadingratios[offloadingratio]; //gyuri // jennifer
 	cpu_power_unit = (cpufreq->power_active * wcet_scaled_cpu + cpufreq->power_idle * wcet_scaled_mem) / (wcet_scaled_cpu + wcet_scaled_mem);
-	*ppower_cpu = cpu_power_unit * (wcet_scaled / task->period) * (1 - offloadingratios[offloadingratio]) + cpu_power_unit * (transtime / task->period) * (offloadingratios[offloadingratio]);// gyuri // jennifer
+	*ppower_cpu = cpu_power_unit * (wcet_scaled / task->period) * (1 - offloadingratios[offloadingratio]) + cpu_power_unit * (netcomtime / task->period) * (offloadingratios[offloadingratio]);// gyuri // jennifer
 	*ppower_net_com = net_com_power_unit * (transtime / task->period) * offloadingratios[offloadingratio];  // jennifer
 	*ppower_mem = task->memreq * (task->mem_active_ratio * mem->power_active + (1 - task->mem_active_ratio) * mem->power_idle) * wcet_scaled / task->period +
 		task->memreq * mem->power_idle * (1 - wcet_scaled / task->period);  // not used
